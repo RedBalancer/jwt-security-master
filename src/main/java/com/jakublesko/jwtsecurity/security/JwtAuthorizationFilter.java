@@ -39,8 +39,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        /**
+         * We start by creating an empty SecurityContext. It is important to create a new SecurityContext
+         * instance instead of using SecurityContextHolder.getContext().setAuthentication(authentication)
+         * to avoid race conditions across multiple threads.
+         */
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
         filterChain.doFilter(request, response);
     }
 
